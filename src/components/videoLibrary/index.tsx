@@ -1,4 +1,5 @@
 import React, {useEffect} from 'react';
+import {compose} from 'redux';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
 
@@ -9,7 +10,10 @@ declare global {
 }
 
 interface Props {
-  options: videojs.PlayerOptions;
+  // options: videojs.PlayerOptions;
+  src: any;
+  autoplay: boolean;
+  controls: boolean;
 }
 
 let player: videojs.Player;
@@ -22,16 +26,36 @@ export const getPlayer = () => {
   return player;
 };
 
-const VideoPlayer = ({options}: Props) => {
+const getVideoSource = (Wrapped: any) => (props: any) => {
+  const src = [
+    {
+      src: 'http://vjs.zencdn.net/v/oceans.mp4',
+      type: 'video/mp4',
+    },
+    {
+      src:
+        'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+      type: 'video/mp4',
+    },
+  ];
+  return <Wrapped {...props} src={src} />;
+};
+
+const getVideoOptions = (Wrapped: any) => (props: any) => {
+  return <Wrapped {...props} autoplay={true} controls={false} />;
+};
+
+const VideoPlayer = (props: Props) => {
   // on mount and dismount
   useEffect(() => {
     player = videojs(
       videoNode,
-      {autoplay: options.autoplay, controls: options.controls},
+      {autoplay: true, controls: true},
       onPlayerReady
     );
+    console.log(props);
     window.player = player;
-    const sources: any = options ? options.sources : null;
+    const sources: any = props ? props.src : null;
     setSource(sources);
     return () => {
       if (player) {
@@ -65,4 +89,9 @@ const VideoPlayer = ({options}: Props) => {
   );
 };
 
-export default VideoPlayer;
+const enhance = compose(
+  getVideoSource,
+  getVideoOptions
+);
+
+export default enhance(VideoPlayer);
