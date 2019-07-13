@@ -1,7 +1,12 @@
+/* tslint:disable:react-hooks/exhaustive-dep */
 import React, {useEffect} from 'react';
 import {compose} from 'redux';
 import videojs from 'video.js';
+import 'videojs-ima/dist/videojs.ima.js';
+import 'videojs-contrib-ads/dist/videojs-contrib-ads.js';
 import 'video.js/dist/video-js.css';
+import 'videojs-ima/src/css/videojs.ima.css';
+import 'videojs-contrib-ads/dist/videojs-contrib-ads.css';
 
 declare global {
   interface Window {
@@ -10,10 +15,8 @@ declare global {
 }
 
 interface Props {
-  // options: videojs.PlayerOptions;
   src: any;
-  autoplay: boolean;
-  controls: boolean;
+  videoOptions: videojs.PlayerOptions;
 }
 
 let player: videojs.Player;
@@ -42,20 +45,20 @@ const getVideoSource = (Wrapped: any) => (props: any) => {
 };
 
 const getVideoOptions = (Wrapped: any) => (props: any) => {
-  return <Wrapped {...props} autoplay={true} controls={false} />;
+  const opts = {
+    autoplay: true,
+    controls: true,
+  };
+  return <Wrapped {...props} videoOptions={opts} />;
 };
 
-const VideoPlayer = (props: Props) => {
+const VideoPlayer = ({videoOptions, src}: Props) => {
   // on mount and dismount
   useEffect(() => {
-    player = videojs(
-      videoNode,
-      {autoplay: true, controls: true},
-      onPlayerReady
-    );
-    console.log(props);
+    player = videojs(videoNode, videoOptions, onPlayerReady);
     window.player = player;
-    const sources: any = props ? props.src : null;
+    const sources: any = src;
+    addMiddleware(player);
     setSource(sources);
     return () => {
       if (player) {
@@ -63,6 +66,14 @@ const VideoPlayer = (props: Props) => {
       }
     };
   }, []);
+
+  const addMiddleware = (myPlayer: any) => {
+    const opts = {
+      adTagUrl:
+        'http://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=xml_vmap1&unviewed_position_start=1&cust_params=sample_ar%3Dpremidpostpod%26deployment%3Dgmf-js&cmsid=496&vid=short_onecue&correlator=',
+    };
+    myPlayer['ima'](opts);
+  };
 
   const setSource = (sources: any[]) => {
     player.src(sources);
