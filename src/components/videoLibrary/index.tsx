@@ -2,6 +2,8 @@
 import React, {useEffect} from 'react';
 import {compose} from 'redux';
 import videojs from 'video.js';
+import getVideoSource from './hoc/getVideoSource';
+import getVideoOptions from './hoc/getVideoOptions';
 import 'videojs-ima/dist/videojs.ima.js';
 import 'videojs-contrib-ads/dist/videojs-contrib-ads.js';
 import 'video.js/dist/video-js.css';
@@ -27,29 +29,6 @@ export const getPlayer = () => {
     return null;
   }
   return player;
-};
-
-const getVideoSource = (Wrapped: any) => (props: any) => {
-  const src = [
-    {
-      src: 'http://vjs.zencdn.net/v/oceans.mp4',
-      type: 'video/mp4',
-    },
-    {
-      src:
-        'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-      type: 'video/mp4',
-    },
-  ];
-  return <Wrapped {...props} src={src} />;
-};
-
-const getVideoOptions = (Wrapped: any) => (props: any) => {
-  const opts = {
-    autoplay: true,
-    controls: true,
-  };
-  return <Wrapped {...props} videoOptions={opts} />;
 };
 
 const VideoPlayer = ({videoOptions, src}: Props) => {
